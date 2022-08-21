@@ -6,7 +6,8 @@ from tgbot.services import database as db
 
 
 async def user_start(message: Message):
-    await message.answer("Привет! Напиши /buy, чтобы купить курс")
+    await message.answer("Здравствуйте! Я - бот, принимающий оплату за Бюро Счастливых семей."
+                         "Напишите /buy, чтобы купить курс.")
 
 
 async def user_buy(message: Message):
@@ -41,9 +42,12 @@ async def process_successful_payment(message: Message):
         link = (await message.bot.create_chat_invite_link(
             chat_id=chat_id, creates_join_request=True, name=str(user_id)
         )).invite_link
-        text += f'Ссылка на чат: {link}\n'
+        text = f'Ссылка на чат: {link}\n'
     await message.answer(text=text)
-    await db.add_user_payment(user=message.from_user, product=invoice_payload, bot=message.bot)
+    await db.add_payment(user_id=user_id, product=invoice_payload, bot=message.bot)
+    if invoice_payload == 'full_module_pack':
+        await db.add_full_pack_user(user_id=user_id, user_name=message.from_user.first_name,
+                                    chat_id=message.chat.id, bot=message.bot)
 
 
 async def process_add_member_to_chat(chat_member: ChatJoinRequest):
