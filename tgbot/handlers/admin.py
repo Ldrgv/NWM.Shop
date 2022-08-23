@@ -15,12 +15,12 @@ async def admin_start(message: Message):
     await message.answer(text=text)
 
 
-async def admin_send_materials(message: Message, state: FSMContext):
+async def admin_send_messages(message: Message, state: FSMContext):
     await message.answer(text='Отправьте сообщение, которое нужно всем разослать')
     await state.set_state('send_messages')
 
 
-async def admin_receive_send_materials(message: Message, state: FSMContext):
+async def admin_receive_send_messages(message: Message, state: FSMContext):
     await state.finish()
     await message.answer('Отправляю сообщение участникам...')
     count = 0
@@ -41,6 +41,6 @@ async def admin_cancel(message: Message, state: FSMContext):
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_start, commands=["start"], state="*", is_admin=True)
     dp.register_message_handler(admin_cancel, commands=['cancel'], state='*', is_admin=True)
-    dp.register_message_handler(admin_send_materials, commands=["send_messages"], state="*", is_admin=True)
-    dp.register_message_handler(admin_receive_send_materials, state='send_messages', content_types=ContentTypes.ANY,
+    dp.register_message_handler(admin_send_messages, commands=["send_messages"], state="*", is_admin=True)
+    dp.register_message_handler(admin_receive_send_messages, state='send_messages', content_types=ContentTypes.ANY,
                                 is_admin=True)

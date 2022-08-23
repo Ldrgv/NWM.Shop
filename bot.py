@@ -1,9 +1,8 @@
 import asyncio
-import aiomysql
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -53,7 +52,7 @@ async def main():
         await conn.run_sync(Base.metadata.create_all)
 
     bot = Bot(token=config.tg_bot.token)
-    dp = Dispatcher(bot=bot, storage=MemoryStorage())
+    dp = Dispatcher(bot=bot, storage=RedisStorage2())
     db = sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
     )

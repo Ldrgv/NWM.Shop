@@ -29,13 +29,15 @@ async def get_product_price(user_id: int, product: str, bot: Bot):
 
         price = price_request.scalar().price
 
-        discount_sql = select(Discount).where(Discount.user_id == user_id)
+        discount_sql = select(Discount).where(Discount.user_id == user_id).where(Discount.product == product)
         discount_request = await session.execute(discount_sql)
 
         discount_obj = discount_request.scalar()
 
         if discount_obj is not None:
             price -= discount_obj.discount
+            await session.delete(discount_obj)
+            await session.commit()
 
         return price
 
@@ -43,17 +45,7 @@ async def get_product_price(user_id: int, product: str, bot: Bot):
 async def get_full_pack_users_chat_id(bot: Bot):
     db_session = bot['db']
     async with db_session() as session:
-        request = await session.execute(select(FullPackUser))
-        chats = [full_pack_user.chat_id for full_pack_user in request.scalars()]
+        request = await session.execute(select(FullPackUser.chat_id))
+        chats = request.scalars().all()
         return chats
 
-"""
-1. Таблица с ценами - prices
-product: varchar(255) (primary key), price: int
-2. Таблица с персональными скидками - discounts
-user_id: bigint, product: varchar(255), discount: int
-3. Таблица с платежами - payments
-user_id: bigint, username: varchar(255), user_first_name: varchar(255), product: varchar(255)
-4. Таблица с теми, кто приобрел полный курс - full_pack_users
-user_id: bigint (primary key), user_first_name varchar(255), user_chat_id bigint
-"""
