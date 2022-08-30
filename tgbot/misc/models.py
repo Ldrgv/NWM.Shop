@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, Integer
+from sqlalchemy import Column, BigInteger, String, Integer, Boolean
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -11,11 +11,18 @@ class Payment(Base):
     user_id_time = Column(String(50), primary_key=True)
 
 
-class Price(Base):
-    __tablename__ = "prices"
+class Product(Base):
+    __tablename__ = "products"
 
-    product = Column(String(50), primary_key=True)
+    key = Column(String(50), primary_key=True)
+    title = Column(String(50))
+    description = Column(String(255))
     price = Column(Integer)
+    photo_url = Column(String(1023))
+    need_name = Column(Boolean)
+    need_phone_number = Column(Boolean)
+    need_email = Column(Boolean)
+    need_shipping_address = Column(Boolean)
 
 
 class Discount(Base):
@@ -31,4 +38,3 @@ class FullPackUser(Base):
 
     user_id = Column(BigInteger, primary_key=True)
     user_name = Column(String(128))
-    chat_id = Column(BigInteger)

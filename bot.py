@@ -40,11 +40,11 @@ async def main():
     logger.info("Starting bot")
 
     # Загружаем переменные окружения
-    config = load_config(".env")
+    config = load_config('/home/eldar/Документы/Проекты/NWM.Shop/.env')
 
     # Настраиваем SQLAlchemy
     engine = create_async_engine(
-        f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.name}",
+        f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.name}"
     )
 
     # Создаём нужные таблицы
@@ -60,9 +60,6 @@ async def main():
     bot['config'] = config
     bot['db'] = db
 
-    register_all_middlewares(dp)
-    register_all_filters(dp)
-    register_all_handlers(dp)
 
     # start
     try:

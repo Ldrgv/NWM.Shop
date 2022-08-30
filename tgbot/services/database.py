@@ -3,7 +3,7 @@ import time
 from aiogram import Bot
 from sqlalchemy import select
 
-from tgbot.misc.models import Payment, FullPackUser, Price, Discount
+from tgbot.misc.models import Payment, FullPackUser, Discount, Product
 
 
 async def add_payment(user_id: int, product: str, bot: Bot):
@@ -14,38 +14,43 @@ async def add_payment(user_id: int, product: str, bot: Bot):
         await session.commit()
 
 
-async def add_full_pack_user(user_id: int, user_name: str, chat_id: int, bot: Bot):
+async def add_full_pack_user(user_id: int, user_name: str, bot: Bot):
     db_session = bot['db']
     async with db_session() as session:
-        await session.merge(FullPackUser(user_id=user_id, user_name=user_name, chat_id=chat_id))
+        await session.merge(FullPackUser(user_id=user_id, user_name=user_name))
         await session.commit()
 
 
-async def get_product_price(user_id: int, product: str, bot: Bot):
+async def get_product(user_id: int, product_key: str, bot: Bot):
     db_session = bot['db']
     async with db_session() as session:
-        price_sql = select(Price).where(Price.product == product)
-        price_request = await session.execute(price_sql)
+        product_sql = select(Product).where(Product.key == product_key)
+        product_request = await session.execute(product_sql)
 
-        price = price_request.scalar().price
+        product = product_request.scalar()
 
-        discount_sql = select(Discount).where(Discount.user_id == user_id).where(Discount.product == product)
+        discount_sql = select(Discount).where(Discount.user_id == user_id).where(Discount.product == product_key)
         discount_request = await session.execute(discount_sql)
 
         discount_obj = discount_request.scalar()
 
         if discount_obj is not None:
-            price -= discount_obj.discount
+            product.price -= discount_obj.discount
             await session.delete(discount_obj)
             await session.commit()
 
-        return price
+        return product
 
 
-async def get_full_pack_users_chat_id(bot: Bot):
+async def get_full_pack_users_id(bot: Bot):
     db_session = bot['db']
     async with db_session() as session:
-        request = await session.execute(select(FullPackUser.chat_id))
-        chats = request.scalars().all()
-        return chats
+        request = await session.execute(select(FullPackUser.user_id))
+        return request.scalars().all()
 
+
+async def add_product(product: Product, bot: Bot):
+    db_session = bot['db']
+    async with db_session() as session:
+        await session.merge(product)
+        await session.commit()
