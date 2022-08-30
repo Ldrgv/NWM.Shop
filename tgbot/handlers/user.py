@@ -13,10 +13,9 @@ async def cmd_start(message: Message, state: FSMContext):
     await set_default(message, state)
 
 
-async def set_default(message: Message, state: FSMContext = None):
+async def set_default(message: Message, state: FSMContext):
     await state.finish()
-    keyboard = keyboards.get_start()
-    await message.edit_reply_markup(reply_markup=keyboard)
+    await message.answer(text='Чё надо?', reply_markup=keyboards.get_start())
 
 
 async def send_invoice(product: str, message: Message):
@@ -33,8 +32,8 @@ async def send_invoice(product: str, message: Message):
         prices=[LabeledPrice(label='Бюро счастливых семей', amount=product.price*100)],
         photo_url=product.photo_url,
         photo_size=256,
-        photo_width=256,
-        photo_height=256,
+        photo_height=512,
+        photo_width=512,
         need_name=product.need_name,
         need_phone_number=product.need_phone_number,
         need_email=product.need_email,
@@ -54,18 +53,17 @@ async def msg_bss(message: Message):
 
 
 async def state_module_amount_selection(message: Message, state: FSMContext):
-    pass
-    # text = message.text
-    # match text:
-    #     case '3':
-    #         await send_invoice(product='full_module_pack', message=message)
-    #     case '1':
-    #         await message.answer('Какой модуль вам нужен?', reply_markup=keyboards.get_specific_module_selection())
-    #         await BSS.next()
-    #     case '<':
-    #         await set_default(message, state)
-    #     case unknown_command:
-    #         await message.answer('Воспользуйтесь клавиатурой!')
+    text = message.text
+    match text:
+        case '3':
+            await send_invoice(product='full_module_pack', message=message)
+        case '1':
+            await message.answer('Какой модуль вам нужен?', reply_markup=keyboards.get_specific_module_selection())
+            await BSS.next()
+        case '<':
+            await set_default(message, state)
+        case unknown_command:
+            await message.answer('Воспользуйтесь клавиатурой!')
 
 
 # state = specific_module_selection
@@ -74,8 +72,7 @@ async def state_specific_module(message: Message, state: FSMContext):
     if text in ['1', '2', '3']:
         await send_invoice(product=(text + '_module'), message=message)
     elif text == '<':
-        await state.finish()
-        await state_module_amount_selection(message, state)
+        await msg_bss(message)
     else:
         await message.answer('Воспользуйтесь клавиатурой!')
 
@@ -126,7 +123,6 @@ async def receive_inviter_friend(message: Message, state: FSMContext):
         except Exception:
             pass
     await message.answer('Я передал админам!')
-    await set_default(message=message, state=state)
 
 
 async def process_add_member_to_chat(chat_member: ChatJoinRequest):
@@ -142,7 +138,7 @@ async def process_add_member_to_chat(chat_member: ChatJoinRequest):
 
 
 def register_user(dp: Dispatcher):
-    dp.register_message_handler(cmd_start, commands="start")
+    dp.register_message_handler(cmd_start, commands="start", state='*')
     dp.register_message_handler(msg_bss, Text(equals='Бюро счастливых семей'))
     dp.register_message_handler(send_pray_schedule, Text(equals='Расписание молитв (СПб)'))
     dp.register_message_handler(state_module_amount_selection, state=BSS.amount_selection)
