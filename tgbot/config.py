@@ -19,7 +19,8 @@ class TgBot:
 @dataclass
 class Misc:
     payment_token: str
-    module_chat: int
+    sender_email: str
+    smtp_password: str
 
 
 @dataclass
@@ -46,6 +47,7 @@ def load_config(path: str = None):
         ),
         misc=Misc(
             payment_token=env.str('PAYMENT_TOKEN'),
-            module_chat=env.int("MODULE_CHAT")
+            sender_email=env.str("SENDER_EMAIL"),
+            smtp_password=env.str("SMTP_PASSWORD")
         )
     )

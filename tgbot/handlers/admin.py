@@ -113,8 +113,8 @@ async def admin_cmd_cancel(message: Message, state: FSMContext):
         await message.answer('Действие отменено!')
 
 
-async def admin_photo_echo(message: Message):
-    print(await message.photo[-1].get_url())
+async def cmd_set_this_chat_as_main(message: Message):
+    await db.set_bss_chat(chat_id=message.chat.id, bot=message.bot)
 
 
 def register_admin(dp: Dispatcher):
@@ -123,7 +123,6 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_cmd_send_messages, commands=["send_messages"], state="*", is_admin=True)
     dp.register_message_handler(admin_state_get_message, state='send_messages', content_types=ContentTypes.ANY,
                                 is_admin=True)
-    dp.register_message_handler(admin_photo_echo, content_types=ContentTypes.PHOTO)
 
     dp.register_message_handler(admin_cmd_create_product, commands=['create_product'], state='*', is_admin=True)
     dp.register_message_handler(admin_state_product_title, state=AddProduct.product_key, is_admin=True)
@@ -135,4 +134,11 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(admin_state_product_need_email, state=AddProduct.product_need_phone_number, is_admin=True)
     dp.register_message_handler(admin_state_product_need_shipping_address, state=AddProduct.product_need_email, is_admin=True)
     dp.register_message_handler(admin_state_finish_product_adding, state=AddProduct.product_need_shipping_address, is_admin=True)
+    dp.register_message_handler(
+        cmd_set_this_chat_as_main,
+        commands='set_this_chat_as_main',
+        chat_type=('group', 'supergroup'),
+        state='*',
+        is_admin=True
+    )
 

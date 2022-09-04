@@ -38,3 +38,10 @@ class FullPackUser(Base):
 
     user_id = Column(BigInteger, primary_key=True)
     user_name = Column(String(128))
+
+
+class Misc(Base):
+    __tablename__ = "misc"
+
+    key = Column(String(50), primary_key=True)
+    value = Column(String(50))

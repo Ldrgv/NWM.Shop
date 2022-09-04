@@ -3,7 +3,7 @@ import time
 from aiogram import Bot
 from sqlalchemy import select
 
-from tgbot.misc.models import Payment, FullPackUser, Discount, Product
+from tgbot.misc.models import Payment, FullPackUser, Discount, Product, Misc
 
 
 async def add_payment(user_id: int, product: str, bot: Bot):
@@ -53,4 +53,19 @@ async def add_product(product: Product, bot: Bot):
     db_session = bot['db']
     async with db_session() as session:
         await session.merge(product)
+        await session.commit()
+
+
+async def get_bss_chat(bot: Bot):
+    db_session = bot['db']
+    async with db_session() as session:
+        sql = select(Misc).where(Misc.key == 'bss_chat')
+        chat_id = await session.execute(sql)
+        return chat_id.scalar().value
+
+
+async def set_bss_chat(chat_id: int, bot: Bot):
+    db_session = bot['db']
+    async with db_session() as session:
+        await session.merge(Misc(key='bss_chat', value=str(chat_id)))
         await session.commit()
