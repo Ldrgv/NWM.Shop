@@ -115,6 +115,7 @@ async def admin_cmd_cancel(message: Message, state: FSMContext):
 
 async def cmd_set_this_chat_as_main(message: Message):
     await db.set_bss_chat(chat_id=message.chat.id, bot=message.bot)
+    await message.answer("Отлично! Теперь этот чат выбран как основной для проведения Бюро счастливых семей!")
 
 
 def register_admin(dp: Dispatcher):
