@@ -59,7 +59,7 @@ async def send_pray_schedule(message: Message):
 
 
 async def send_halal_map(message: Message):
-    await message.answer('Этот раздел еще находится в разработке 🥷', parse_mode='Markdown')
+    await message.answer('[Халяльный Петербург](https://yandex.ru/maps/?um=constructor%3Ae15b576cd4cdd60c6e80f46f5bb4f1236c9112dac78f6f3190646938326fd8d4&source=constructorLink)', parse_mode='Markdown')
 
 
 # msg.text = Бюро счастливых семей
